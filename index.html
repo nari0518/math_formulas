@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>数学まとめプリント</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!-- KaTeX CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+            integrity="sha384-mll67QQ6P7r9nwRHMtI53JD8USvRHpz6jICgonVNJL6z2yjr7yYK9FZ6Ed0rYbIx"
+            crossorigin="anonymous"
+            onload="renderMathInElement(document.body, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});">
+    </script>
+    <!-- marked for Markdown -> HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { max-width: 800px; margin: 2rem auto; line-height: 1.6; padding: 0 1rem; font-family: sans-serif; }
+        pre { background:#f8f8f8; padding:1rem; overflow:auto; }
+    </style>
+</head>
+<body>
+<h1>数学まとめプリント</h1>
+<div id="content">Loading…</div>
+<script>
+fetch('README.md')
+  .then(r => r.text())
+  .then(md => {
+    document.getElementById('content').innerHTML = marked.parse(md);
+    // math rendering triggered by auto-render on body load
+  })
+  .catch(err => {
+    document.getElementById('content').textContent = 'README.md を読み込めませんでした: ' + err;
+  });
+</script>
+</body>
+</html>

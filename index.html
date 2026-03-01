@@ -27,7 +27,11 @@ fetch('readme.md')
   .then(r => r.text())
   .then(md => {
     document.getElementById('content').innerHTML = marked.parse(md);
-    // math rendering triggered by auto-render on body load
+    // manually trigger KaTeX rendering now that content is present
+    if (window.renderMathInElement) {
+      renderMathInElement(document.getElementById('content'),
+        {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+    }
   })
   .catch(err => {
     document.getElementById('content').textContent = 'README.md を読み込めませんでした: ' + err;

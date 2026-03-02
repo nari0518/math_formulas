@@ -49,34 +49,145 @@
     </style>
 </head>
 <body>
+<div id="controls" style="margin-bottom:1rem;">
+  <input id="filter" placeholder="絞り込み (例: R7, 数A)" style="display:none; padding:0.4rem; width:60%;" />
+  <button id="home-button" style="display:none; margin-left:0.5rem; padding:0.4rem 0.8rem;">ホームへ戻る</button>
+</div>
 <div id="content">読み込み中…</div>
 
 <script>
 window.addEventListener('load', function() {
-    // Initialize markdown-it
+    // markdown-it インスタンス
     const md = window.markdownit({html: true, linkify: true, breaks: true});
-    
-    fetch('readme.md')
-        .then(response => {
-            if (!response.ok) throw new Error('Failed to fetch readme.md');
-            return response.text();
-        })
-        .then(markdown => {
-            const html = md.render(markdown);
-            document.getElementById('content').innerHTML = html;
-            // Render math with KaTeX auto-render
-            if (window.renderMathInElement) {
-                renderMathInElement(document.getElementById('content'), {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false}
-                    ]
-                });
-            }
-        })
-        .catch(error => {
-            document.getElementById('content').innerHTML = '<p style="color:red;">エラー: ' + error.message + '</p>';
+
+    // ファイル一覧を保持 (フィルタ用)
+    window.currentList = [];
+
+    const filterInput = document.getElementById('filter');
+    const homeButton = document.getElementById('home-button');
+    homeButton.addEventListener('click', navigateToHome);
+    filterInput.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        if (!q) {
+            renderList(window.currentList);
+        } else {
+            const filtered = window.currentList.filter(item =>
+                item.displayName.toLowerCase().includes(q) ||
+                item.filename.toLowerCase().includes(q) ||
+                item.year.toLowerCase().includes(q) ||
+                item.area.toLowerCase().includes(q)
+            );
+            renderList(filtered);
+        }
+    });
+
+    window.addEventListener('popstate', function(e) {
+        const state = e.state;
+        if (state && state.file) {
+            loadFile(state.file);
+        } else {
+            showHome();
+        }
+    });
+
+    function parseFilename(fname) {
+        const base = fname.replace(/\.md$/i, '');
+        const [year = '', area = '', test = ''] = base.split('-');
+        return {year, area, test};
+    }
+
+    function formatDisplayName(meta) {
+        const areaMap = {A: '数A', B: '数B', I: '数Ⅰ', II: '数Ⅱ', III: '数Ⅲ', C: '数C'};
+        const testMap = {'1': '1学期中間', '2': '1学期末', '3': '2学期中間', '4': '2学期末', '5': '学年末'};
+        const areaName = areaMap[meta.area] || meta.area;
+        const testName = testMap[meta.test] || meta.test;
+        return `${meta.year}_${areaName}_${testName}`;
+    }
+
+    function renderList(list) {
+        const container = document.getElementById('content');
+        container.innerHTML = '';
+        if (list.length === 0) {
+            container.innerHTML = '<p>ファイルがありません。</p>';
+            return;
+        }
+        const ul = document.createElement('ul');
+        list.forEach(item => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = '?file=docs/' + item.filename;
+            a.textContent = item.displayName;
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToFile(item.filename);
+            });
+            li.appendChild(a);
+            ul.appendChild(li);
         });
+        container.appendChild(ul);
+    }
+
+    function showHome() {
+        homeButton.style.display = 'none';
+        filterInput.style.display = 'inline-block';
+        document.getElementById('content').innerHTML = '<p>読み込み中…</p>';
+        fetch('docs/files.json')
+            .then(r => r.json())
+            .then(list => {
+                window.currentList = list;
+                renderList(list);
+            })
+            .catch(err => {
+                document.getElementById('content').innerHTML = '<p style="color:red;">エラー:' + err.message + '</p>';
+            });
+    }
+
+    function loadFile(filename) {
+        homeButton.style.display = 'inline-block';
+        filterInput.style.display = 'none';
+        fetch('docs/' + filename)
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to fetch ' + filename);
+                return r.text();
+            })
+            .then(mdtext => {
+                const html = md.render(mdtext);
+                document.getElementById('content').innerHTML = html;
+                if (window.renderMathInElement) {
+                    renderMathInElement(document.getElementById('content'), {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+                }
+            })
+            .catch(err => {
+                document.getElementById('content').innerHTML = '<p style="color:red;">エラー:' + err.message + '</p>';
+            });
+    }
+
+    function navigateToFile(filename) {
+        const url = '?file=docs/' + filename;
+        history.pushState({file: filename}, '', url);
+        loadFile(filename);
+    }
+
+    function navigateToHome() {
+        history.pushState({}, '', window.location.pathname);
+        showHome();
+    }
+
+    // 初期ロード
+    const params = new URLSearchParams(location.search);
+    const fileParam = params.get('file');
+    if (fileParam) {
+        const fname = fileParam.replace(/^docs\//, '');
+        history.replaceState({file: fname}, '', location.href);
+        loadFile(fname);
+    } else {
+        showHome();
+    }
 });
 </script>
 </body>

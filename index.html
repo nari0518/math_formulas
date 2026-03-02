@@ -51,6 +51,8 @@
 <body>
 <div id ="header">
     <h1>数学 重要事項のまとめ</h1>
+    <p>授業プリントやプロミネンスを読み込ませてAIに基本事項や解法などをまとめさせました。</p>
+    <p>PDF化は「共有」→印刷→PDFで可能です。</p>
 </div>
 <div id="controls" style="margin-bottom:1rem;">
   <input id="filter" placeholder="絞り込み (例: R7, 数A)" style="display:none; padding:0.4rem; width:60%;" />
@@ -131,6 +133,8 @@ window.addEventListener('load', function() {
     }
 
     function showHome() {
+        // ヘッダを表示
+        document.getElementById('header').style.display = '';
         homeButton.style.display = 'none';
         filterInput.style.display = 'inline-block';
         document.getElementById('content').innerHTML = '<p>読み込み中…</p>';
@@ -146,6 +150,8 @@ window.addEventListener('load', function() {
     }
 
     function loadFile(filename) {
+        // ヘッダを隠す
+        document.getElementById('header').style.display = 'none';
         homeButton.style.display = 'inline-block';
         filterInput.style.display = 'none';
         fetch('docs/' + filename)

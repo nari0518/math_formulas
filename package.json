@@ -1,0 +1,13 @@
+{
+  "name": "math_formulas",
+  "version": "1.0.0",
+  "description": "静的サイト用 Markdown index generator",
+  "main": "index.html",
+  "scripts": {
+    "generate": "node scripts/generate_docs_index.js",
+    "build": "npm run generate",
+    "start": "python3 -m http.server 8000"
+  },
+  "author": "",
+  "license": "MIT"
+}

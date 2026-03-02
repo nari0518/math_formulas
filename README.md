@@ -20,12 +20,27 @@
 ## セットアップと実行
 
 1. Node.js が必要です。インストールされていない場合は公式サイトから取得。
-2. 新しい Markdown ファイルを `docs/` に追加したら、ルートで:
-   ```bash
-   node scripts/generate_docs_index.js
+2. このリポジトリには `package.json` があり、いくつか便利な npm スクリプトが定義されています：
+   ```sh
+   npm install        # (オプション) dev 依存があれば
+   npm run generate   # docs/files.json を再生成
+   npm run build      # generate のエイリアス
+   npm run start      # ローカルサーバを立ち上げ (python3)
    ```
+   Markdown ファイルを `docs/` に追加したら `npm run generate` を実行してください。
+   GitHub Actions も配置済みで、`docs/**/*.md` やスクリプトが変更されると
+   自動的に `files.json` を再生成してコミットします。
 3. 好きな HTTP サーバでワークスペースを配信し、ブラウザで `index.html` を開く。
-   例: `python3 -m http.server 8000`。
+   例: `npm run start` あるいは `python3 -m http.server 8000`。
+
+---
+
+### CI での自動化
+
+本リポジトリには `.github/workflows/gen-index.yml` があり、
+Markdown を push した際に GitHub Actions が起動して `npm run generate` を実行します。
+生成された `docs/files.json` に差分があれば自動でコミット＆pushするように設定してあります。
+（プライベートリポジトリや他の CI でも同様の手順を組み込むことができます。）
 
 ---
 

@@ -1,0 +1,30 @@
+name: Regenerate docs index
+
+on:
+  push:
+    paths:
+      - 'docs/**/*.md'
+      - 'scripts/generate_docs_index.js'
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Generate index
+        run: npm run generate
+
+      - name: Commit updated files.json
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs/files.json
+          git diff --quiet || (git commit -m 'chore: regenerate docs index' && git push)

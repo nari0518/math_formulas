@@ -106,7 +106,18 @@ window.addEventListener('load', function() {
     }
 
     function formatDisplayName(meta) {
-        const areaMap = {A: '数A', B: '数B', I: '数Ⅰ', II: '数Ⅱ', III: '数Ⅲ', C: '数C'};
+        // include both ASCII and fullwidth numerals so display/filters work regardless
+        const areaMap = {
+            A: '数A',
+            B: '数B',
+            I: '数Ⅰ',
+            II: '数Ⅱ',
+            III: '数Ⅲ',
+            Ⅰ: '数Ⅰ',
+            Ⅱ: '数Ⅱ',
+            Ⅲ: '数Ⅲ',
+            C: '数C'
+        };
         const testMap = {'1': '1学期中間', '2': '1学期末', '3': '2学期中間', '4': '2学期末', '5': '学年末'};
         const areaName = areaMap[meta.area] || meta.area;
         const testName = testMap[meta.test] || meta.test;

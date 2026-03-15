@@ -1,4 +1,4 @@
-# math_formulas
+# Summary_for_Tests
 
 静的サイトとして Markdown ファイルを読み込み、KaTeX で数学を表示するシンプルな仕組みです。
 
